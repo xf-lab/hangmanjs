@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css?family=Damion|Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
+</head>
+<script>
+
+</script>
+<style>
+	body{
+		background-color: #f0f3f5;
+		color: #fff;
+	}
+	header{
+		background-color: #9aca40;
+		padding:20px;
+		margin-bottom: 20px;
+	}
+	h1{
+		font-family: 'Damion', cursive;
+	}
+	p{
+		font-family: 'Roboto';
+	}
+	#palabra,#palabra-oculta{
+		font-size: 2.0rem;
+	}
+	.contenido-juego{
+		background-color: #777;
+		text-align: center;
+		padding: 20px;
+	}
+	#intentos,#letras-acertadas{
+		color: #9aca40;
+		font-size: 2.0rem;
+	}
+	#mensaje{
+		color: #eabd15;
+		font-size: 2.5rem;
+	}
+	#letras-falladas{
+		color: #ff7c7c;
+		font-size: 2rem;
+	}
+</style>
+<body>
+	<div class="container">
+		<header class="row">
+			<div class="col text-center">
+				<h1>Hangman</h1>
+			</div>
+		</header>
+		<div class="row">
+			<div class="col-12 contenido-juego">
+				<p>Guess the word</p>
+				<p id="contenedor-intentos">
+					Press a key. You have <span id="intentos">10</span> attempts.
+				</p>
+				<p id="mensaje" class="clase"></p>
+				<p id="num-letras"></p>
+				<p id="palabra"></p>
+				<p id="palabra-oculta"></p>
+				<span id="num"></span>
+				<p>
+					CORRECT LETTERS: <span id="letras-acertadas"></span>
+				</p>
+				<p>
+					FAIL LETTERS: <span id="letras-falladas"></span>
+				</p>
+				<p id="tecla"> </p>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+	var contador=0;//contador para saber cuando acierta y cuando falla el jugador
+	var intentos = 10; //número de intentos de los que dispone el jugador
+	var n = Math.floor(Math.random()*(49-0+1)+0); //número aleatorio entre 0 y 49
+	var words = ["glass", "bottle", "lamp", "chair", "table", "cat", "dog", "hamster", "kitchen", "house", "street", "bridge", "neck", "elbow", "door", "horse", "bear", "eagle", "boat", "fountain", "bycicle", "shore", "tree", "chest", "cigarette", "helmet", "river", "elephant", "tiger", "blue", "orange", "purple", "chemical", "music", "chess", "cheese", "spoon", "professor", "police", "baker", "ocean", "sailor", "paper", "writer", "actor", "floor", "string", "water", "rabbit", "movie", "guitar", "song", "tower", "country", "driver", "university", "airport", "school", "mountain", "beach"];//cargamos las 50 palabras en un array de strings
+	//document.getElementById("palabra").innerHTML = words[n]; //muestra la palabra
+	var numLetras=words[n].length;//número de letras de la palabra oculta
+	var spans = "";//declaramos un variable string vacía
+	//bucle para crear las etiquetas span con id's diferentes en función del número de letras que contiene la palabra
+	for(i=0;i < numLetras;i++){
+		spans=spans+"<span id="+(i+1)+"> _ </span>";
+		if (i==numLetras-1) {
+			document.getElementById("palabra-oculta").innerHTML = spans; //muestra todos los spans
+		}
+	}
+	//Al cargar la página se desencadena el evento
+	window.onload = function() {
+		document.onkeypress = pulsarTecla;//al pulsar tecla normal
+		document.onkeyup = pulsarTeclaEspecial;//pulsa tecla especial (ejemplo: Shift)
+	}
+	function pulsarTecla(evObject) {
+		var palabra = '';
+        var msg = '';
+        var elCaracter = String.fromCharCode(evObject.which);//guarda en una variable la letra pulsada
+        var contadorAnterior = contador;//contador para diferenciar cuando se ha acertado y cuando se ha fallado
+        //evObject.which contiene el codigo numerico para una tecla en particular.
+        //El código 0 se refiere a la tecla ESC y el 13 a la tecla ENTER
+        if (evObject.which!=0 && evObject.which!=13) {
+        	//bucle para recorrer la palabra y compararla con la letra pulsada
+        	for(i=0; i < numLetras ;i++){
+        		if(words[n].charAt(i)==elCaracter){
+        			contador++;
+        			document.getElementById(i+1).innerHTML = words[n].charAt(i);
+        		}
+        	}
+        	//if para diferenciar cuando se acierta y cuando se falla
+        	if(contadorAnterior==contador){
+        		var falladas = document.getElementById("letras-falladas").innerHTML;
+        		//este if hace que no se muestren letras falladas repetidas
+        		if(falladas.includes(elCaracter)==false){
+        			intentos--;//se resta un intento
+        			document.getElementById("letras-falladas").innerHTML += (" "+elCaracter+" ");
+        		}
+        	}else{
+        		var acertadas = document.getElementById("letras-acertadas").innerHTML;
+        		//este if hace que no se muestren letras falladas repetidas
+        		if(acertadas.includes(elCaracter)==false){
+        			intentos--;// se resta un intento
+        			document.getElementById("letras-acertadas").innerHTML += (" "+elCaracter+" ");
+        		}
+        	}
+        } else {
+        	msg = 'Pulsada tecla especial';
+        	tecla.innerHTML += msg + '<br/>';
+        }
+
+        document.getElementById("intentos").innerHTML = intentos; //se muestran cuantos intentos quedan
+        //bucle para rellenar un string con la palabra completa o incompleta
+        for(i=0; i < numLetras ;i++){
+        	palabra += document.getElementById(i+1).innerHTML;
+        }
+        //si la palabra está completa entra en el if
+        if(words[n]==palabra){
+    		document.getElementById("mensaje").innerHTML = "You win :)";
+    		document.getElementById("contenedor-intentos").innerHTML = "";
+    		document.onkeypress = null;//desactiva el evento al terminar el juego
+    		document.onkeyup = null;//desactiva el evento al terminar el juego
+    	}else if(intentos<=0){//si intento llega a 0 entra en este if y el jugador ha perdido
+    		document.getElementById("mensaje").innerHTML = "You lost :(";
+    		document.onkeypress = null;//desactiva el evento al terminar el juego
+    		document.onkeyup = null;//desactiva el evento al terminar el juego
+    	}
+	}
+	function pulsarTeclaEspecial(evObject) {
+			var msg = '';
+	    	var teclaPulsada = evObject.keyCode;
+
+	        if (teclaPulsada == 20) {
+	        	msg = 'Pulsado caps lock (act/des mayúsculas)';
+	        } else if (teclaPulsada == 16) {
+	        	msg = 'Pulsado shift';
+	        } else if (eventoControlado == false) {
+	        	msg = 'Pulsada tecla especial';
+	        }
+	        if (msg) {
+	        	tecla.innerHTML += msg + '<br/>';
+	    	}
+	}
+
+</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+</html>
